@@ -1,0 +1,8 @@
+# The image is built from the Go sources only. Everything else stays out,
+# in particular the GeoLite2 .mmdb files, which the MaxMind EULA forbids
+# redistributing: mount them at run time instead.
+*
+!go.mod
+!go.sum
+!cmd/
+!internal/

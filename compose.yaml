@@ -1,0 +1,11 @@
+services:
+  shimmer:
+    build: .
+    image: shimmer
+    # The project directory, with its lists and .mmdb files, is the working
+    # directory inside the container.
+    volumes:
+      - ./:/data
+    # One open socket per probe in flight; room for far more than -workers 512.
+    ulimits:
+      nofile: 65536
