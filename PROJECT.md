@@ -52,9 +52,9 @@ Check a list and keep only the proxies that work:
 ```
 
 Check a list, find each proxy's real exit address, and add country and ASN
-from the databases in the project root. The project's `.env` file already
-names the databases, so run it from the project root and they are used
-without flags:
+from the databases in the project root. The project's `.env` file, copied
+from `.env.example`, names the databases, so run it from the project root and
+they are used without flags:
 
 ```bash
 ./shimmer -i proxies.txt -o results.jsonl -exit-ip
@@ -259,8 +259,9 @@ so the file is not overwritten by flag defaults.
 
 Every setting except `-lists` and `-resume` can also come from a `SHIMMER_`
 variable, either in the environment or in a `.env` file. The project root has
-a `.env` that names the geo databases next to it and lists every other
-variable, commented out, at its default.
+a `.env.example` that names the geo databases next to it and lists every other
+variable, commented out, at its default. Copy it to `.env`, which git ignores:
+`cp .env.example .env`.
 
 ### Which setting wins
 
@@ -896,7 +897,9 @@ internal/resume/        reads earlier results, filters proxies already done
 internal/dial/          the Dialer interface every outbound connection uses
 Dockerfile              static build, run FROM scratch as a non-root user
 compose.yaml            runs the image with the project directory at /data
-.env                    SHIMMER_ settings, read from the directory shimmer runs in
+.env.example            SHIMMER_ settings to copy to .env
+.env                    SHIMMER_ settings, read from the directory shimmer runs in;
+                        not in git
 ```
 
 Design points that shape the code:
