@@ -52,10 +52,15 @@ Check a list and keep only the proxies that work:
 ```
 
 Check a list, find each proxy's real exit address, and add country and ASN
-from the databases in the project root. The project's `.env` file, copied
-from `.env.example`, names the databases, so run it from the project root and
+from MaxMind databases. The databases are not in the repository: download
+`GeoLite2-Country.mmdb` and `GeoLite2-ASN.mmdb` into the project root first
+(see [Getting and updating them](#getting-and-updating-them)). `.env.example`
+names them there, so copy it to `.env` once and, run from the project root,
 they are used without flags:
 
+```bash
+cp .env.example .env
+```
 ```bash
 ./shimmer -i proxies.txt -o results.jsonl -exit-ip
 ```
@@ -257,8 +262,8 @@ so the file is not overwritten by flag defaults.
 
 ## Environment and .env file
 
-Every setting except `-lists` and `-resume` can also come from a `SHIMMER_`
-variable, either in the environment or in a `.env` file. The project root has
+Every setting except `-lists`, `-resume` and `-env` itself can also come from
+a `SHIMMER_` variable, either in the environment or in a `.env` file. The project root has
 a `.env.example` that names the geo databases next to it and lists every other
 variable, commented out, at its default. Copy it to `.env`, which git ignores:
 `cp .env.example .env`.
@@ -558,7 +563,7 @@ classic proxy gets, and records the result in the same shape.
   names clients use: `type`, `security`, `sni`, `host`, `path`, `alpn`, `fp`,
   `pbk`, `sid`, `spx`, `pqv`, `flow`, `encryption`, `serviceName`,
   `authority`, `mode`, `extra`, `headerType`, `ech`, `pcs`, `vcn`,
-  `allowInsecure` / `insecure`.
+  `allowInsecure` / `insecure` / `skip-cert-verify`.
 - **Transports:** raw/TCP (with the HTTP header disguise), WebSocket, gRPC,
   HTTPUpgrade, XHTTP (with `mode` and `extra`), mKCP, and Hysteria2's QUIC.
 - **Security:** none, TLS (with uTLS fingerprints, ALPN, ECH and pinned
@@ -579,8 +584,8 @@ could connect with it:
 - `ssr://` and other schemes: not read at all.
 - Shadowsocks with a stream cipher (`aes-256-cfb`, `rc4-md5`, `chacha20-ietf`,
   ...) or a SIP003 `plugin`: Xray has neither.
-- Transports Xray has removed: `http`/`h2`, `quic`, and mKCP with a `seed` or
-  header.
+- Transports Xray has removed: `http`/`h2`/`h3`, `quic`, and mKCP with a
+  `seed` or header.
 - REALITY without a public key, an unknown `type` or `security`, an `extra`
   that is not JSON, a missing id or password, or a malformed address.
 - XHTTP whose request URL does not parse: a `host`, or with no `host` an
@@ -766,7 +771,11 @@ Details:
 
 ## Geo databases
 
-The project root currently holds three MaxMind GeoLite2 databases:
+`shimmer` reads MaxMind GeoLite2 databases. They are not in the repository:
+git ignores `*.mmdb`, and the licence forbids passing them on (see
+[Licence terms to respect](#licence-terms-to-respect)). Download them into the
+project root, where `.env.example` names them (see
+[Getting and updating them](#getting-and-updating-them)):
 
 | File | Size | Used for |
 | --- | --- | --- |
@@ -792,9 +801,10 @@ off and `country` and `asn` stay empty.
 - **Relative paths** are resolved from the directory `shimmer` runs in. They are
   not resolved from the binary's location, and not from the location of the
   config file or `.env` file that names them.
-- **The project root** holds the files, and its `.env` names them by relative
-  path. Run from the root, `./shimmer` finds them with no flags. From anywhere
-  else, give absolute paths:
+- **The project root** is where `.env.example` expects the files, naming them
+  by relative path. With them downloaded there and `.env` copied from
+  `.env.example`, `./shimmer` run from the root finds them with no flags. From
+  anywhere else, give absolute paths:
 
   ```bash
   shimmer -i proxies.txt -mmdb-city /path/to/shimmer/GeoLite2-Country.mmdb -mmdb-asn /path/to/shimmer/GeoLite2-ASN.mmdb
@@ -802,7 +812,7 @@ off and `country` and `asn` stay empty.
 
 - **Docker:** the working directory in the container is `/data`, so the files
   must be in the directory mounted there. `compose.yaml` mounts the project
-  root, which already holds them. With `docker run -v "$PWD:/data"`, run it
+  root, so download them there. With `docker run -v "$PWD:/data"`, run it
   from the directory that holds them. The image itself has none.
 - **A wrong path** stops the run before anything is written, with
   `open city database: ...` or `open ASN database: ...`. The run does not

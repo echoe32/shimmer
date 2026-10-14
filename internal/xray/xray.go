@@ -434,7 +434,7 @@ func (t *tracker) close(tag string) {
 	}
 }
 
-// open reports how many sockets the tracker holds, for tests.
+// sockets reports how many sockets the tracker holds, for tests.
 func (t *tracker) sockets() int {
 	t.mu.Lock()
 	defer t.mu.Unlock()
